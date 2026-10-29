@@ -50,7 +50,9 @@ class Game {
 
   private broadcastLobby() {
     const players = [...this.users.values()].map((user) => user.name)
-    this.broadcast({ type: 'lobby', players, playing: this.state === 'PLAYING' })
+    let msg = { type: 'lobby', players, playing: this.state === 'PLAYING' } as ServerMessage
+    console.log("SRV", msg);
+    this.broadcast(msg);
   }
 
   private broadcast(message: ServerMessage) {

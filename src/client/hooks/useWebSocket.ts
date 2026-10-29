@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { ClientMessage, ServerMessage } from '../../types';
 
-// Same host that served the page, so it works on any PORT
 const wsURI = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`;
 
 export function useWebSocket() {

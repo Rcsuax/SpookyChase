@@ -20,6 +20,8 @@ wss.on('connection', function connection(ws) {
         const msg = parseMessage(data.toString());
         if (!msg) return;
 
+        console.log("MSG: ", msg)
+
         if (msg.type === 'join') {
           game.addClient(ws, msg.name);
         } else if (msg.type === 'start') {
