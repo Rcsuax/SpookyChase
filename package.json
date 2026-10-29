@@ -4,9 +4,9 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "concurrently -k -n server,client -c blue,magenta \"tsx watch src/server.ts\" \"vite\"",
+    "dev": "concurrently -k -n server,client -c blue,magenta \"tsx watch src/server/server.ts\" \"vite\"",
     "build": "tsc && vite build",
-    "start": "node dist/server.js",
+    "start": "node dist/server/server.js",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.client.json"
   },
   "keywords": [],
