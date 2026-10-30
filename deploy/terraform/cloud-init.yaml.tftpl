@@ -47,8 +47,10 @@ write_files:
       echo "Deployed $(git rev-parse --short HEAD)"
 
 runcmd:
-  - curl -fsSL https://deb.nodesource.com/setup_${node_major}.x | bash -
-  - apt-get install -y nodejs caddy
+  # Non-interactive, or needrestart's kernel prompt aborts the NodeSource setup
+  # and apt falls back to Ubuntu's nodejs (no npm)
+  - DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a sh -c 'curl -fsSL https://deb.nodesource.com/setup_${node_major}.x | bash -'
+  - DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a apt-get install -y nodejs caddy
   - cp /etc/chase/Caddyfile /etc/caddy/Caddyfile
   - systemctl reload caddy
   - git clone --branch ${branch} ${repo_url} /opt/chase
