@@ -31,7 +31,7 @@ wss.on('connection', function connection(ws) {
       //   game.start();
       // }
       if(msg.type === 'input') {
-        game.moveDirection(ws, msg.direction)
+        game.setDirection(ws, msg.direction)
       }
   });
 

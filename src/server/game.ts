@@ -2,13 +2,12 @@ import { randomUUID, type UUID } from 'crypto'
 import type WebSocket from 'ws'
 import type { Direction, GameState, ServerMessage } from '../types.js'
 import type { User, Position } from '../types.js'
-import {MOVES , ROWS, COLS, ONE_SEC, DEFAULT_GAME_STATE } from '../constants.js'
+import {MOVES , ROWS, COLS, TICK_LENGTH, DEFAULT_GAME_STATE } from '../constants.js'
 
 class Game {
   state: "LOBBY" | "PLAYING" = "LOBBY"
   private users = new Map<WebSocket, User>();
   private interval: NodeJS.Timeout | null = null;
-  private TICK_LENGTH = ONE_SEC;
   private prevTick = performance.now();
   private gameState: GameState = DEFAULT_GAME_STATE;
 
@@ -63,12 +62,14 @@ class Game {
       //   'late by', (delta * 1000 - this.TICK_LENGTH).toFixed(2), 
       //   'ms'
       // )
-    }, this.TICK_LENGTH)
+    }, TICK_LENGTH)
   }
 
   private update(dt: number) {
+    for (const usr of this.users.values()) {
+      if (usr.direction) this.step(usr, usr.direction)
+    }
     this.broadcastLobby()
-    // TODO: game logic, using dt (seconds) so speeds are per second
   }
 
   private broadcastLobby() {
@@ -81,11 +82,15 @@ class Game {
     for (const ws of this.users.keys()) ws.send(data)
   }
 
-  moveDirection(ws: WebSocket, d: Direction) {
+  // Only records the direction; update() does the moving on the next tick
+  setDirection(ws: WebSocket, d: Direction) {
     const usr = this.users.get(ws)
-    console.log("SRV", usr);
-    if (!usr?.position) return
-  
+    if (usr) usr.direction = d
+  }
+
+  private step(usr: User, d: Direction) {
+    if (!usr.position) return
+
     const x = usr.position.x + MOVES[d].x
     const y = usr.position.y + MOVES[d].y
     if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return   // off the board
@@ -93,7 +98,7 @@ class Game {
     this.gameState.board[usr.position.y][usr.position.x] = 0   // leave old cell
     this.gameState.board[y][x] = 1                             // enter new cell
     usr.position = { x, y }
-    this.broadcastLobby();
+    usr.direction = undefined
   }
 
   private randomEmptyCell(): Position | null {

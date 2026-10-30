@@ -12,6 +12,7 @@ export type User = {
   id: UUID,
   name: string,
   position?: Position,
+  direction?: Direction,
 }
 
 // export type Cell = {

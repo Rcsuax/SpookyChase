@@ -27,3 +27,5 @@ export const DEFAULT_GAME_STATE: GameState = {
 
 
 export const ONE_SEC = 1000;
+export const HALF_SEC = ONE_SEC / 2;
+export const TICK_LENGTH = 150;
