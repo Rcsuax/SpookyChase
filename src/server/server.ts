@@ -16,8 +16,6 @@ const game = new Game();
 
 wss.on('connection', function connection(ws) {
   console.log('New client connected');
-  game.addClient(ws, "TEST");
-  game.start();
 
   ws.on('message', function message(data) {
       const msg = parseMessage(data.toString());
@@ -25,12 +23,13 @@ wss.on('connection', function connection(ws) {
 
       console.log("MSG: ", msg)
 
-      // if (msg.type === 'join') {
-      //   game.addClient(ws, msg.name);
-      // } else if (msg.type === 'start') {
-      //   game.start();
-      // }
-      if(msg.type === 'input') {
+      if (msg.type === 'join') {
+        game.addClient(ws, msg.name);
+      } else if (msg.type === 'ready') {
+        game.setReady(ws, msg.ready);
+      } else if (msg.type === 'restart') {
+        game.restart();
+      } else if(msg.type === 'input') {
         game.setDirection(ws, msg.direction)
       }
   });
@@ -63,8 +62,12 @@ function parseMessage(text: string): ClientMessage | null {
     return { type: 'join', name };
   }
 
-  if (msg.type === 'start') {
-    return { type: 'start' };
+  if (msg.type === 'ready' && 'ready' in msg && typeof msg.ready === 'boolean') {
+    return { type: 'ready', ready: msg.ready };
+  }
+
+  if (msg.type === 'restart') {
+    return { type: 'restart' };
   }
 
   if(msg.type === 'input' && 'direction' in msg && typeof msg.direction === 'string') {

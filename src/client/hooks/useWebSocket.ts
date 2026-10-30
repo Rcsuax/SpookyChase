@@ -7,6 +7,7 @@ const wsURI = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.hos
 export function useWebSocket() {
   const [gameState, setGameState] = useState<GameState>(DEFAULT_GAME_STATE)
   const [connected, setConnected] = useState(false);
+  const [myId, setMyId] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -18,7 +19,8 @@ export function useWebSocket() {
     websocket.addEventListener('message', (event) => {
       const msg: ServerMessage = JSON.parse(event.data);
       console.log(gameState)
-      setGameState(msg.gameState);
+      if (msg.type === 'joined') setMyId(msg.id);
+      else setGameState(msg.gameState);
     });
 
     return () => {
@@ -32,5 +34,5 @@ export function useWebSocket() {
     socketRef.current?.send(JSON.stringify(msg));
   }, []);
 
-  return { connected, gameState, send };
+  return { connected, gameState, myId, send };
 }
