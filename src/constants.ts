@@ -1,10 +1,9 @@
 import { Direction, GameState, Position } from "./types.js";
 
 export const MIN_PLAYERS = 1;
-// export const COLS = 8
-// export const ROWS = 5
-export const COLS = 4
-export const ROWS = 4
+export const COLS = 20
+export const ROWS = 20
+export const CELL_SIZE = 60
 export const DIRECTIONS: Direction[] = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
 export const MOVES: Record<Direction, Position> = {
   UP: { x: 0, y: -1 },

@@ -16,23 +16,26 @@ const game = new Game();
 
 wss.on('connection', function connection(ws) {
   console.log('New client connected');
-  game.addClient(ws, "TEST");
-  game.start();
+  // game.addClient(ws, "TEST");
+  // game.start();
 
   ws.on('message', function message(data) {
-      const msg = parseMessage(data.toString());
-      if (!msg) return;
+    const msg = parseMessage(data.toString());
+    if (!msg) return;
 
-      console.log("MSG: ", msg)
+    console.log("MSG: ", msg)
 
-      // if (msg.type === 'join') {
-      //   game.addClient(ws, msg.name);
-      // } else if (msg.type === 'start') {
-      //   game.start();
-      // }
-      if(msg.type === 'input') {
+    switch(msg.type) {
+      case 'join':
+        game.addClient(ws, msg.name);
+        return;
+      case 'start':
+        game.start();
+        return;
+      case 'input':
         game.setDirection(ws, msg.direction)
-      }
+        return;
+    }
   });
 
   ws.on('error', function error(err) {

@@ -5,11 +5,10 @@ import type { User, Position } from '../types.js'
 import {MOVES , ROWS, COLS, TICK_LENGTH, DEFAULT_GAME_STATE } from '../constants.js'
 
 class Game {
-  state: "LOBBY" | "PLAYING" = "LOBBY"
+  private gameState: GameState = DEFAULT_GAME_STATE;
   private users = new Map<WebSocket, User>();
   private interval: NodeJS.Timeout | null = null;
   private prevTick = performance.now();
-  private gameState: GameState = DEFAULT_GAME_STATE;
 
   addClient(ws: WebSocket, name: string) {
     if (this.users.has(ws)) return
@@ -31,17 +30,25 @@ class Game {
     this.users.delete(ws)
     this.gameState.players = this.gameState.players.filter((p) => p.id !== usr.id)
     this.broadcastLobby()
+
+    if(this.users.size === 0) {
+      this.stop()
+    }
   }
 
   start() {
-    if (this.state === 'PLAYING') return
-    this.state = 'PLAYING'
+    if (this.gameState.mode === 'PLAYING') return
+    console.log("SRV: GAME START", performance.now())
+    
+    this.gameState.mode = 'PLAYING'
     this.broadcastLobby()
     this.loop()
   }
 
   stop() {
-    this.state = 'LOBBY'
+    console.log("SRV: GAME STOP", performance.now())
+    
+    this.gameState.mode = 'LOBBY'
     this.broadcastLobby()
     if(this.interval) clearInterval(this.interval);
   }
@@ -82,7 +89,6 @@ class Game {
     for (const ws of this.users.keys()) ws.send(data)
   }
 
-  // Only records the direction; update() does the moving on the next tick
   setDirection(ws: WebSocket, d: Direction) {
     const usr = this.users.get(ws)
     if (usr) usr.direction = d

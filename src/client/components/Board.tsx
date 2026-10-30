@@ -1,9 +1,9 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { ROWS, COLS } from '../../constants';
+import { ROWS, COLS, CELL_SIZE } from '../../constants';
 import { ClientMessage, Direction, GameState, Position } from '../../types';
 import useKeyboardInputs from '../hooks/useKeyboardInputs';
 
-const CELL_SIZE = 100
+
 const WIDTH = COLS * CELL_SIZE;
 const HEIGHT = ROWS * CELL_SIZE; 
 

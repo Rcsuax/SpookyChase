@@ -17,11 +17,10 @@ export default function App() {
 
   return (
     <main className="mx-auto my-8 max-w-4xl px-4 font-sans">
-      {/* {name === null && <NameOverlay onSubmit={setName} />} */}
+      {name === null && <NameOverlay onSubmit={setName} />}
       
       <h1 className="text-3xl font-bold">Chase</h1>
-      {/* { gameState.mode === "LOBBY" ?  */}
-      { false? 
+      { gameState.mode === "LOBBY" ? 
         <Lobby name={name} send={send} connected={connected} gameState={gameState} />
         :  
         <Board gameState = {gameState} send={send}/>
