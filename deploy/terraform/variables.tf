@@ -25,7 +25,7 @@ variable "domain" {
 variable "ssh_public_key_path" {
   description = "Public key to install for root"
   type        = string
-  default     = "~/.ssh/id_ed25519.pub"
+  default     = "~/.ssh/rcsuax-gh.pub"
 }
 
 variable "ssh_allowed_ips" {
