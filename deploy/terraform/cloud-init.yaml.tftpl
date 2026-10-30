@@ -1,0 +1,60 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - git
+  - curl
+  - ufw
+
+write_files:
+  - path: /etc/systemd/system/chase.service
+    content: |
+      [Unit]
+      Description=Chase game server
+      After=network.target
+
+      [Service]
+      WorkingDirectory=/opt/chase
+      ExecStart=/usr/bin/node dist/server/server.js
+      Environment=PORT=${app_port}
+      Environment=NODE_ENV=production
+      DynamicUser=yes
+      Restart=always
+
+      [Install]
+      WantedBy=multi-user.target
+
+  # Copied into /etc/caddy after the caddy package is installed
+  - path: /etc/chase/Caddyfile
+    content: |
+      ${site} {
+        reverse_proxy localhost:${app_port}
+      }
+
+  # Pull latest code, rebuild, restart. Run this to redeploy.
+  - path: /usr/local/bin/chase-deploy
+    permissions: "0755"
+    content: |
+      #!/bin/sh
+      set -e
+      export HOME=/root
+      cd /opt/chase
+      git fetch origin ${branch}
+      git reset --hard origin/${branch}
+      npm ci
+      npm run build
+      systemctl restart chase
+      echo "Deployed $(git rev-parse --short HEAD)"
+
+runcmd:
+  - curl -fsSL https://deb.nodesource.com/setup_${node_major}.x | bash -
+  - apt-get install -y nodejs caddy
+  - cp /etc/chase/Caddyfile /etc/caddy/Caddyfile
+  - systemctl reload caddy
+  - git clone --branch ${branch} ${repo_url} /opt/chase
+  - /usr/local/bin/chase-deploy
+  - systemctl enable chase
+  - ufw allow OpenSSH
+  - ufw allow 80
+  - ufw allow 443
+  - ufw --force enable
