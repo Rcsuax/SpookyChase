@@ -1,19 +1,21 @@
 import { MIN_PLAYERS } from './../../constants'
-import type { ClientMessage } from '../../types'
+import type { ClientMessage, GameState } from '../../types'
 
 interface LobbyProps {
-  players: string[],
   name: string | null,
   connected: boolean,
+  gameState: GameState,
   send: (msg: ClientMessage) => void,
 }
 
 const Lobby = ({
-  players,
   name,
   connected,
+  gameState,
   send,
 }: LobbyProps) => {
+  const { players } = gameState;
+
   return (
     <>
       {name && <p className="mt-1 text-gray-700">Hi, {name}</p>}
@@ -22,12 +24,10 @@ const Lobby = ({
         <span className={`size-2 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'}`} />
         {connected ? 'Connected' : 'Disconnected'}
       </p>
-
-        
-        <h2 className="mt-6 font-semibold">Lobby ({players.length})</h2>
+        <h2 className="mt-6 font-semibold">Lobby ({ players.length })</h2>
         <ul className="mt-2 space-y-1">
           {players.map((player, i) => (
-            <li key={i}>{player}</li>
+            <li key={i}>{player.name}</li>
           ))}
         </ul>
         <button

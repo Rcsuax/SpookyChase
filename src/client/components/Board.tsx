@@ -1,33 +1,53 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react';
+import { ROWS, COLS } from '../../constants';
+import { ClientMessage, Direction, GameState, Position } from '../../types';
+import useKeyboardInputs from '../hooks/useKeyboardInputs';
 
-const WIDTH = 800
-const HEIGHT = 500
 const CELL_SIZE = 100
+const WIDTH = COLS * CELL_SIZE;
+const HEIGHT = ROWS * CELL_SIZE; 
 
-const Board = () => {
+type BoardProps = {
+  gameState: GameState
+  send: (msg: ClientMessage) => void;
+}
+
+const Board = ({ gameState, send }: BoardProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  
+  const sendDirection = useCallback((direction: Direction) => {
+    send({ 'type': 'input', direction })
+  }, [send]);
+  
+  useKeyboardInputs(sendDirection);
 
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas?.getContext('2d')
     if (!canvas || !ctx) return
 
-    // Draw at device resolution so it stays sharp on high-DPI screens
     const dpr = window.devicePixelRatio || 1
     canvas.width = WIDTH * dpr
     canvas.height = HEIGHT * dpr
     ctx.scale(dpr, dpr)
 
-    drawGrid(ctx)
-  }, [])
+    for(let row = 0; row < gameState.board.length; row++) {
+      for(let col = 0; col < gameState.board.length; col++) {
+        if(gameState.board[row][col] === 1) {
+          drawCell(ctx, { x: col * CELL_SIZE, y: row * CELL_SIZE})
+        }
+      }
+    }
+    // drawCell(ctx, { x: 0, y: 0 })
+    drawGrid(ctx);
+  }, [gameState])
 
   return (
     <canvas
       ref={canvasRef}
-      className="mt-6 rounded-lg bg-gray-50 outline outline-gray-300"
+      className="mt-6"
       style={{ width: WIDTH, maxWidth: '100%', aspectRatio: `${WIDTH} / ${HEIGHT}` }}
     >
-
     </canvas>
   )
 }
@@ -46,5 +66,11 @@ function drawGrid(ctx: CanvasRenderingContext2D) {
   ctx.lineWidth = 2
   ctx.stroke()
 }
+
+function drawCell(ctx: CanvasRenderingContext2D, p: Position) {
+  ctx.fillStyle = 'red';
+  ctx.fillRect(p.x, p.y, CELL_SIZE, CELL_SIZE);
+}
+
 
 export default Board

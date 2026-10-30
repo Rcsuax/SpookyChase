@@ -1,1 +1,29 @@
-export const MIN_PLAYERS = 2;
+import { Direction, GameState, Position } from "./types.js";
+
+export const MIN_PLAYERS = 1;
+// export const COLS = 8
+// export const ROWS = 5
+export const COLS = 4
+export const ROWS = 4
+export const DIRECTIONS: Direction[] = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
+export const MOVES: Record<Direction, Position> = {
+  UP: { x: 0, y: -1 },
+  DOWN: { x: 0, y: 1 },
+  LEFT: { x: -1, y: 0 },
+  RIGHT: { x: 1, y: 0 },
+}
+
+export const DEFAULT_GAME_STATE: GameState = {
+  mode: "LOBBY",
+  board: Array.from({ length: ROWS }, () => Array(COLS).fill(0)),
+  // board: [
+  //   [0,1,0,0],
+  //   [0,0,0,0],
+  //   [0,0,0,0],
+  //   [0,0,0,0],
+  // ],
+  players: []
+};
+
+
+export const ONE_SEC = 1000;

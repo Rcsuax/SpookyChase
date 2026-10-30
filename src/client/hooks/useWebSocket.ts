@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { ClientMessage, ServerMessage } from '../../types';
+import { type ClientMessage, type ServerMessage, GameState } from '../../types';
+import { DEFAULT_GAME_STATE } from '../../constants';
 
 const wsURI = `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`;
 
 export function useWebSocket() {
-  const [players, setPlayers] = useState<string[]>([]);
-  const [playing, setPlaying] = useState(false);
+  const [gameState, setGameState] = useState<GameState>(DEFAULT_GAME_STATE)
   const [connected, setConnected] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
 
@@ -17,10 +17,8 @@ export function useWebSocket() {
     websocket.addEventListener('close', () => setConnected(false));
     websocket.addEventListener('message', (event) => {
       const msg: ServerMessage = JSON.parse(event.data);
-      if (msg.type === 'lobby') {
-        setPlayers(msg.players);
-        setPlaying(msg.playing);
-      }
+      console.log(gameState)
+      setGameState(msg.gameState);
     });
 
     return () => {
@@ -30,8 +28,9 @@ export function useWebSocket() {
   }, []);
 
   const send = useCallback((msg: ClientMessage) => {
+    console.log(msg)
     socketRef.current?.send(JSON.stringify(msg));
   }, []);
 
-  return { players, playing, connected, send };
+  return { connected, gameState, send };
 }
